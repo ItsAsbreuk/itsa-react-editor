@@ -169,10 +169,11 @@ const Component = React.createClass({
      */
     render() {
         let classname = MAIN_CLASS,
-            editor, toolbar, editorState;
+            editor, toolbar, editorState, styles;
         const instance = this,
             props = instance.props,
             disabled = !props.editable,
+            minHeight = props.minHeight,
             toolbarItems = props.toolbarItems && props.toolbarItems.itsa_deepClone(),
             html = props.initialHtml,
             propsClass = props.className;
@@ -188,15 +189,17 @@ const Component = React.createClass({
         }
         propsClass && (classname+=" "+propsClass);
         if (isNode || disabled) {
+            minHeight && (styles={minHeight: minHeight});
             editor = <div
                 className="DraftEditor-root"
-                dangerouslySetInnerHTML={{__html: html}} />;
+                dangerouslySetInnerHTML={{__html: html}}
+                style={styles} />;
         }
         else {
             editor = <Editor
                 editorState={editorState}
                 handleKeyCommand={instance._handleKeyCommand}
-                minHeight={props.minHeight}
+                minHeight={minHeight}
                 onChange={instance._handleEditorChange}
                 ref="editor" />;
         }
