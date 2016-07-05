@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>lib/draft-js/EditorState.js - itsa-react-editor</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="https://avatars0.githubusercontent.com/u/8314644?v=3&amp;s=84" title="itsa-react-editor"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.0.1</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/Editor.html">Editor</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                                <li><a href="../modules/component.jsx.html">component.jsx</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1 class="file-heading">File: lib/draft-js/EditorState.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule EditorState
+ * 
+ */
+
+&#x27;use strict&#x27;;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i &lt; arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i &lt; props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if (&#x27;value&#x27; in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError(&#x27;Cannot call a class as a function&#x27;); } }
+
+var BlockTree = require(&#x27;./BlockTree&#x27;);
+var ContentState = require(&#x27;./ContentState&#x27;);
+var EditorBidiService = require(&#x27;./EditorBidiService&#x27;);
+var Immutable = require(&#x27;immutable&#x27;);
+var SelectionState = require(&#x27;./SelectionState&#x27;);
+
+var OrderedSet = Immutable.OrderedSet;
+var Record = Immutable.Record;
+var Stack = Immutable.Stack;
+
+var defaultRecord = {
+  allowUndo: true,
+  currentContent: null,
+  decorator: null,
+  directionMap: null,
+  forceSelection: false,
+  inCompositionMode: false,
+  inlineStyleOverride: null,
+  lastChangeType: null,
+  nativelyRenderedContent: null,
+  redoStack: Stack(),
+  selection: null,
+  treeMap: null,
+  undoStack: Stack()
+};
+
+var EditorStateRecord = Record(defaultRecord);
+
+var EditorState = (function () {
+  _createClass(EditorState, [{
+    key: &#x27;toJS&#x27;,
+    value: function toJS() {
+      return this.getImmutable().toJS();
+    }
+  }, {
+    key: &#x27;getAllowUndo&#x27;,
+    value: function getAllowUndo() {
+      return this.getImmutable().get(&#x27;allowUndo&#x27;);
+    }
+  }, {
+    key: &#x27;getCurrentContent&#x27;,
+    value: function getCurrentContent() {
+      return this.getImmutable().get(&#x27;currentContent&#x27;);
+    }
+  }, {
+    key: &#x27;getUndoStack&#x27;,
+    value: function getUndoStack() {
+      return this.getImmutable().get(&#x27;undoStack&#x27;);
+    }
+  }, {
+    key: &#x27;getRedoStack&#x27;,
+    value: function getRedoStack() {
+      return this.getImmutable().get(&#x27;redoStack&#x27;);
+    }
+  }, {
+    key: &#x27;getSelection&#x27;,
+    value: function getSelection() {
+      return this.getImmutable().get(&#x27;selection&#x27;);
+    }
+  }, {
+    key: &#x27;getDecorator&#x27;,
+    value: function getDecorator() {
+      return this.getImmutable().get(&#x27;decorator&#x27;);
+    }
+  }, {
+    key: &#x27;isInCompositionMode&#x27;,
+    value: function isInCompositionMode() {
+      return this.getImmutable().get(&#x27;inCompositionMode&#x27;);
+    }
+  }, {
+    key: &#x27;mustForceSelection&#x27;,
+    value: function mustForceSelection() {
+      return this.getImmutable().get(&#x27;forceSelection&#x27;);
+    }
+  }, {
+    key: &#x27;getNativelyRenderedContent&#x27;,
+    value: function getNativelyRenderedContent() {
+      return this.getImmutable().get(&#x27;nativelyRenderedContent&#x27;);
+    }
+  }, {
+    key: &#x27;getLastChangeType&#x27;,
+    value: function getLastChangeType() {
+      return this.getImmutable().get(&#x27;lastChangeType&#x27;);
+    }
+
+    /**
+     * While editing, the user may apply inline style commands with a collapsed
+     * cursor, intending to type text that adopts the specified style. In this
+     * case, we track the specified style as an &quot;override&quot; that takes precedence
+     * over the inline style of the text adjacent to the cursor.
+     *
+     * If null, there is no override in place.
+     */
+  }, {
+    key: &#x27;getInlineStyleOverride&#x27;,
+    value: function getInlineStyleOverride() {
+      return this.getImmutable().get(&#x27;inlineStyleOverride&#x27;);
+    }
+  }, {
+    key: &#x27;getCurrentInlineStyle&#x27;,
+
+    /**
+     * Get the appropriate inline style for the editor state. If an
+     * override is in place, use it. Otherwise, the current style is
+     * based on the location of the selection state.
+     */
+    value: function getCurrentInlineStyle() {
+      var override = this.getInlineStyleOverride();
+      if (override != null) {
+        return override;
+      }
+
+      var content = this.getCurrentContent();
+      var selection = this.getSelection();
+
+      if (selection.isCollapsed()) {
+        return getInlineStyleForCollapsedSelection(content, selection);
+      }
+
+      return getInlineStyleForNonCollapsedSelection(content, selection);
+    }
+  }, {
+    key: &#x27;getBlockTree&#x27;,
+    value: function getBlockTree(blockKey) {
+      return this.getImmutable().getIn([&#x27;treeMap&#x27;, blockKey]);
+    }
+  }, {
+    key: &#x27;isSelectionAtStartOfContent&#x27;,
+    value: function isSelectionAtStartOfContent() {
+      var firstKey = this.getCurrentContent().getBlockMap().first().getKey();
+      return this.getSelection().hasEdgeWithin(firstKey, 0, 0);
+    }
+  }, {
+    key: &#x27;isSelectionAtEndOfContent&#x27;,
+    value: function isSelectionAtEndOfContent() {
+      var content = this.getCurrentContent();
+      var blockMap = content.getBlockMap();
+      var last = blockMap.last();
+      var end = last.getLength();
+      return this.getSelection().hasEdgeWithin(last.getKey(), end, end);
+    }
+  }, {
+    key: &#x27;getDirectionMap&#x27;,
+    value: function getDirectionMap() {
+      return this.getImmutable().get(&#x27;directionMap&#x27;);
+    }
+
+    /**
+     * Incorporate native DOM selection changes into the EditorState. This
+     * method can be used when we simply want to accept whatever the DOM
+     * has given us to represent selection, and we do not need to re-render
+     * the editor.
+     *
+     * To forcibly move the DOM selection, see &#x60;EditorState.forceSelection&#x60;.
+     */
+  }], [{
+    key: &#x27;createEmpty&#x27;,
+    value: function createEmpty(decorator) {
+      return EditorState.createWithContent(ContentState.createFromText(&#x27;&#x27;), decorator);
+    }
+  }, {
+    key: &#x27;createWithContent&#x27;,
+    value: function createWithContent(contentState, decorator) {
+      var firstKey = contentState.getBlockMap().first().getKey();
+      return EditorState.create({
+        currentContent: contentState,
+        undoStack: Stack(),
+        redoStack: Stack(),
+        decorator: decorator || null,
+        selection: SelectionState.createEmpty(firstKey)
+      });
+    }
+  }, {
+    key: &#x27;create&#x27;,
+    value: function create(config) {
+      var currentContent = config.currentContent;
+      var decorator = config.decorator;
+
+      var recordConfig = _extends({}, config, {
+        treeMap: generateNewTreeMap(currentContent, decorator),
+        directionMap: EditorBidiService.getDirectionMap(currentContent)
+      });
+      return new EditorState(new EditorStateRecord(recordConfig));
+    }
+  }, {
+    key: &#x27;set&#x27;,
+    value: function set(editorState, put) {
+      var map = editorState.getImmutable().withMutations(function (state) {
+        var existingDecorator = state.get(&#x27;decorator&#x27;);
+        var decorator = existingDecorator;
+        if (put.decorator === null) {
+          decorator = null;
+        } else if (put.decorator) {
+          decorator = put.decorator;
+        }
+
+        var newContent = put.currentContent || editorState.getCurrentContent();
+
+        if (decorator !== existingDecorator) {
+          var treeMap = state.get(&#x27;treeMap&#x27;);
+          var newTreeMap;
+          if (decorator &amp;&amp; existingDecorator) {
+            newTreeMap = regenerateTreeForNewDecorator(newContent.getBlockMap(), treeMap, decorator, existingDecorator);
+          } else {
+            newTreeMap = generateNewTreeMap(newContent, decorator);
+          }
+
+          state.merge({
+            decorator: decorator,
+            treeMap: newTreeMap,
+            nativelyRenderedContent: null
+          });
+          return;
+        }
+
+        var existingContent = editorState.getCurrentContent();
+        if (newContent !== existingContent) {
+          state.set(&#x27;treeMap&#x27;, regenerateTreeForNewBlocks(editorState, newContent.getBlockMap(), decorator));
+        }
+
+        state.merge(put);
+      });
+
+      return new EditorState(map);
+    }
+  }, {
+    key: &#x27;setInlineStyleOverride&#x27;,
+    value: function setInlineStyleOverride(editorState, inlineStyleOverride) {
+      return EditorState.set(editorState, { inlineStyleOverride: inlineStyleOverride });
+    }
+  }, {
+    key: &#x27;acceptSelection&#x27;,
+    value: function acceptSelection(editorState, selection) {
+      return updateSelection(editorState, selection, false);
+    }
+
+    /**
+     * At times, we need to force the DOM selection to be where we
+     * need it to be. This can occur when the anchor or focus nodes
+     * are non-text nodes, for instance. In this case, we want to trigger
+     * a re-render of the editor, which in turn forces selection into
+     * the correct place in the DOM. The &#x60;forceSelection&#x60; method
+     * accomplishes this.
+     *
+     * This method should be used in cases where you need to explicitly
+     * move the DOM selection from one place to another without a change
+     * in ContentState.
+     */
+  }, {
+    key: &#x27;forceSelection&#x27;,
+    value: function forceSelection(editorState, selection) {
+      if (!selection.getHasFocus()) {
+        selection = selection.set(&#x27;hasFocus&#x27;, true);
+      }
+      return updateSelection(editorState, selection, true);
+    }
+
+    /**
+     * Move selection to the end of the editor without forcing focus.
+     */
+  }, {
+    key: &#x27;moveSelectionToEnd&#x27;,
+    value: function moveSelectionToEnd(editorState) {
+      var content = editorState.getCurrentContent();
+      var lastBlock = content.getLastBlock();
+      var lastKey = lastBlock.getKey();
+      var length = lastBlock.getLength();
+
+      return EditorState.acceptSelection(editorState, new SelectionState({
+        anchorKey: lastKey,
+        anchorOffset: length,
+        focusKey: lastKey,
+        focusOffset: length,
+        isBackward: false
+      }));
+    }
+
+    /**
+     * Force focus to the end of the editor. This is useful in scenarios
+     * where we want to programmatically focus the input and it makes sense
+     * to allow the user to continue working seamlessly.
+     */
+  }, {
+    key: &#x27;moveFocusToEnd&#x27;,
+    value: function moveFocusToEnd(editorState) {
+      var afterSelectionMove = EditorState.moveSelectionToEnd(editorState);
+      return EditorState.forceSelection(afterSelectionMove, afterSelectionMove.getSelection());
+    }
+
+    /**
+     * Push the current ContentState onto the undo stack if it should be
+     * considered a boundary state, and set the provided ContentState as the
+     * new current content.
+     */
+  }, {
+    key: &#x27;push&#x27;,
+    value: function push(editorState, contentState, changeType) {
+      if (editorState.getCurrentContent() === contentState) {
+        return editorState;
+      }
+
+      var forceSelection = changeType !== &#x27;insert-characters&#x27;;
+      var directionMap = EditorBidiService.getDirectionMap(contentState, editorState.getDirectionMap());
+
+      if (!editorState.getAllowUndo()) {
+        return EditorState.set(editorState, {
+          currentContent: contentState,
+          directionMap: directionMap,
+          lastChangeType: changeType,
+          selection: contentState.getSelectionAfter(),
+          forceSelection: forceSelection,
+          inlineStyleOverride: null
+        });
+      }
+
+      var selection = editorState.getSelection();
+      var currentContent = editorState.getCurrentContent();
+      var undoStack = editorState.getUndoStack();
+      var newContent = contentState;
+
+      if (selection !== currentContent.getSelectionAfter() || mustBecomeBoundary(editorState, changeType)) {
+        undoStack = undoStack.push(currentContent);
+        newContent = newContent.set(&#x27;selectionBefore&#x27;, selection);
+      } else if (changeType === &#x27;insert-characters&#x27; || changeType === &#x27;backspace-character&#x27; || changeType === &#x27;delete-character&#x27;) {
+        // Preserve the previous selection.
+        newContent = newContent.set(&#x27;selectionBefore&#x27;, currentContent.getSelectionBefore());
+      }
+
+      var inlineStyleOverride = editorState.getInlineStyleOverride();
+
+      // Don&#x27;t discard inline style overrides on block type or depth changes.
+      if (changeType !== &#x27;adjust-depth&#x27; &amp;&amp; changeType !== &#x27;change-block-type&#x27;) {
+        inlineStyleOverride = null;
+      }
+
+      var editorStateChanges = {
+        currentContent: newContent,
+        directionMap: directionMap,
+        undoStack: undoStack,
+        redoStack: Stack(),
+        lastChangeType: changeType,
+        selection: contentState.getSelectionAfter(),
+        forceSelection: forceSelection,
+        inlineStyleOverride: inlineStyleOverride
+      };
+
+      return EditorState.set(editorState, editorStateChanges);
+    }
+
+    /**
+     * Make the top ContentState in the undo stack the new current content and
+     * push the current content onto the redo stack.
+     */
+  }, {
+    key: &#x27;undo&#x27;,
+    value: function undo(editorState) {
+      if (!editorState.getAllowUndo()) {
+        return editorState;
+      }
+
+      var undoStack = editorState.getUndoStack();
+      var newCurrentContent = undoStack.peek();
+      if (!newCurrentContent) {
+        return editorState;
+      }
+
+      var currentContent = editorState.getCurrentContent();
+      var directionMap = EditorBidiService.getDirectionMap(newCurrentContent, editorState.getDirectionMap());
+
+      return EditorState.set(editorState, {
+        currentContent: newCurrentContent,
+        directionMap: directionMap,
+        undoStack: undoStack.shift(),
+        redoStack: editorState.getRedoStack().push(currentContent),
+        forceSelection: true,
+        inlineStyleOverride: null,
+        lastChangeType: &#x27;undo&#x27;,
+        nativelyRenderedContent: null,
+        selection: currentContent.getSelectionBefore()
+      });
+    }
+
+    /**
+     * Make the top ContentState in the redo stack the new current content and
+     * push the current content onto the undo stack.
+     */
+  }, {
+    key: &#x27;redo&#x27;,
+    value: function redo(editorState) {
+      if (!editorState.getAllowUndo()) {
+        return editorState;
+      }
+
+      var redoStack = editorState.getRedoStack();
+      var newCurrentContent = redoStack.peek();
+      if (!newCurrentContent) {
+        return editorState;
+      }
+
+      var currentContent = editorState.getCurrentContent();
+      var directionMap = EditorBidiService.getDirectionMap(newCurrentContent, editorState.getDirectionMap());
+
+      return EditorState.set(editorState, {
+        currentContent: newCurrentContent,
+        directionMap: directionMap,
+        undoStack: editorState.getUndoStack().push(currentContent),
+        redoStack: redoStack.shift(),
+        forceSelection: true,
+        inlineStyleOverride: null,
+        lastChangeType: &#x27;redo&#x27;,
+        nativelyRenderedContent: null,
+        selection: newCurrentContent.getSelectionAfter()
+      });
+    }
+
+    /**
+     * Not for public consumption.
+     */
+  }]);
+
+  function EditorState(immutable) {
+    _classCallCheck(this, EditorState);
+
+    this._immutable = immutable;
+  }
+
+  /**
+   * Set the supplied SelectionState as the new current selection, and set
+   * the &#x60;force&#x60; flag to trigger manual selection placement by the view.
+   */
+
+  /**
+   * Not for public consumption.
+   */
+
+  _createClass(EditorState, [{
+    key: &#x27;getImmutable&#x27;,
+    value: function getImmutable() {
+      return this._immutable;
+    }
+  }]);
+
+  return EditorState;
+})();
+
+function updateSelection(editorState, selection, forceSelection) {
+  return EditorState.set(editorState, {
+    selection: selection,
+    forceSelection: forceSelection,
+    nativelyRenderedContent: null,
+    inlineStyleOverride: null
+  });
+}
+
+/**
+ * Regenerate the entire tree map for a given ContentState and decorator.
+ * Returns an OrderedMap that maps all available ContentBlock objects.
+ */
+function generateNewTreeMap(contentState, decorator) {
+  return contentState.getBlockMap().map(function (block) {
+    return BlockTree.generate(block, decorator);
+  }).toOrderedMap();
+}
+
+/**
+ * Regenerate tree map objects for all ContentBlocks that have changed
+ * between the current editorState and newContent. Returns an OrderedMap
+ * with only changed regenerated tree map objects.
+ */
+function regenerateTreeForNewBlocks(editorState, newBlockMap, decorator) {
+  var prevBlockMap = editorState.getCurrentContent().getBlockMap();
+  var prevTreeMap = editorState.getImmutable().get(&#x27;treeMap&#x27;);
+  return prevTreeMap.merge(newBlockMap.toSeq().filter(function (block, key) {
+    return block !== prevBlockMap.get(key);
+  }).map(function (block) {
+    return BlockTree.generate(block, decorator);
+  }));
+}
+
+/**
+ * Generate tree map objects for a new decorator object, preserving any
+ * decorations that are unchanged from the previous decorator.
+ *
+ * Note that in order for this to perform optimally, decoration Lists for
+ * decorators should be preserved when possible to allow for direct immutable
+ * List comparison.
+ */
+function regenerateTreeForNewDecorator(blockMap, previousTreeMap, decorator, existingDecorator) {
+  return previousTreeMap.merge(blockMap.toSeq().filter(function (block) {
+    return decorator.getDecorations(block) !== existingDecorator.getDecorations(block);
+  }).map(function (block) {
+    return BlockTree.generate(block, decorator);
+  }));
+}
+
+/**
+ * Return whether a change should be considered a boundary state, given
+ * the previous change type. Allows us to discard potential boundary states
+ * during standard typing or deletion behavior.
+ */
+function mustBecomeBoundary(editorState, changeType) {
+  var lastChangeType = editorState.getLastChangeType();
+  return changeType !== lastChangeType || changeType !== &#x27;insert-characters&#x27; &amp;&amp; changeType !== &#x27;backspace-character&#x27; &amp;&amp; changeType !== &#x27;delete-character&#x27;;
+}
+
+function getInlineStyleForCollapsedSelection(content, selection) {
+  var startKey = selection.getStartKey();
+  var startOffset = selection.getStartOffset();
+  var startBlock = content.getBlockForKey(startKey);
+
+  // If the cursor is not at the start of the block, look backward to
+  // preserve the style of the preceding character.
+  if (startOffset &gt; 0) {
+    return startBlock.getInlineStyleAt(startOffset - 1);
+  }
+
+  // The caret is at position zero in this block. If the block has any
+  // text at all, use the style of the first character.
+  if (startBlock.getLength()) {
+    return startBlock.getInlineStyleAt(0);
+  }
+
+  // Otherwise, look upward in the document to find the closest character.
+  return lookUpwardForInlineStyle(content, startKey);
+}
+
+function getInlineStyleForNonCollapsedSelection(content, selection) {
+  var startKey = selection.getStartKey();
+  var startOffset = selection.getStartOffset();
+  var startBlock = content.getBlockForKey(startKey);
+
+  // If there is a character just inside the selection, use its style.
+  if (startOffset &lt; startBlock.getLength()) {
+    return startBlock.getInlineStyleAt(startOffset);
+  }
+
+  // Check if the selection at the end of a non-empty block. Use the last
+  // style in the block.
+  if (startOffset &gt; 0) {
+    return startBlock.getInlineStyleAt(startOffset - 1);
+  }
+
+  // Otherwise, look upward in the document to find the closest character.
+  return lookUpwardForInlineStyle(content, startKey);
+}
+
+function lookUpwardForInlineStyle(content, fromKey) {
+  var previousBlock = content.getBlockBefore(fromKey);
+  var previousLength;
+
+  while (previousBlock) {
+    previousLength = previousBlock.getLength();
+    if (previousLength) {
+      return previousBlock.getInlineStyleAt(previousLength - 1);
+    }
+    previousBlock = content.getBlockBefore(previousBlock.getKey());
+  }
+
+  return OrderedSet();
+}
+
+module.exports = EditorState;
+    </pre>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>
