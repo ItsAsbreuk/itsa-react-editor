@@ -51,7 +51,7 @@
 	var React = __webpack_require__(5),
 	    ReactDOM = __webpack_require__(36),
 	    Component = __webpack_require__(170),
-	    toolbarBIU = __webpack_require__(353);
+	    toolbarBIU = __webpack_require__(353)(); // invoke!
 
 	var handleStateChange = function handleStateChange(editorState) {
 	    props.editorState = editorState;
@@ -20488,7 +20488,7 @@
 
 
 	// module
-	exports.push([module.id, ".itsa-editor {\n  position: relative; }\n  .itsa-editor .pure-control-group {\n    display: inline-block; }\n\n.itsa-editor-toolbar {\n  width: 100%;\n  padding: 0.2em 0.5em 0;\n  height: 2.6em;\n  background-color: #DDD;\n  position: relative;\n  z-index: 2; }\n  .itsa-editor-toolbar .toolbar-btn {\n    width: 2.4em;\n    padding-left: 0;\n    padding-right: 0;\n    text-align: center; }\n\n.itsa-editor-float-container {\n  width: 100%;\n  height: 100%;\n  position: relative;\n  z-index: 1; }\n\n.itsa-editor-with-toolbar .itsa-editor-float-container {\n  top: -2.6em;\n  padding-top: 2.6em; }\n\n.itsa-editor-editarea {\n  width: 100%;\n  height: 100%; }\n\n.itsa-editor,\n.itsa-editor-toolbar,\n.itsa-editor-float-container,\n.itsa-editor-editarea {\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box; }\n\n.DraftEditor-root {\n  height: 100%;\n  width: 100%;\n  overflow: scroll; }\n\n.DraftEditor-editorContainer,\n.public-DraftEditor-content {\n  height: 100%; }\n\n/* ===================================== */\n.DraftEditor-editorContainer,\n.DraftEditor-root,\n.public-DraftEditor-content {\n  /* height: inherit; */\n  text-align: initial; }\n\n.DraftEditor-root {\n  position: relative; }\n\n.DraftEditor-editorContainer {\n  background-color: rgba(255, 255, 255, 0);\n  border-left: .1px solid transparent;\n  position: relative;\n  z-index: 1; }\n\n.public-DraftEditor-block {\n  position: relative; }\n\n.DraftEditor-alignLeft .public-DraftStyleDefault-block {\n  text-align: left; }\n\n.DraftEditor-alignLeft .public-DraftEditorPlaceholder-root {\n  left: 0;\n  text-align: left; }\n\n.DraftEditor-alignCenter .public-DraftStyleDefault-block {\n  text-align: center; }\n\n.DraftEditor-alignCenter .public-DraftEditorPlaceholder-root {\n  margin: 0 auto;\n  text-align: center;\n  width: 100%; }\n\n.DraftEditor-alignRight .public-DraftStyleDefault-block {\n  text-align: right; }\n\n.DraftEditor-alignRight .public-DraftEditorPlaceholder-root {\n  right: 0;\n  text-align: right; }\n\n.public-DraftEditorPlaceholder-root {\n  color: #9197a3;\n  position: absolute;\n  z-index: 0; }\n\n.public-DraftEditorPlaceholder-hasFocus {\n  color: #bdc1c9; }\n\n.DraftEditorPlaceholder-hidden {\n  display: none; }\n\n.public-DraftStyleDefault-block {\n  position: relative;\n  white-space: pre-wrap; }\n\n.public-DraftStyleDefault-ltr {\n  direction: ltr;\n  text-align: left; }\n\n.public-DraftStyleDefault-rtl {\n  direction: rtl;\n  text-align: right; }\n\n.public-DraftStyleDefault-listLTR {\n  direction: ltr; }\n\n.public-DraftStyleDefault-listRTL {\n  direction: rtl; }\n\n.public-DraftStyleDefault-ol,\n.public-DraftStyleDefault-ul {\n  margin: 16px 0;\n  padding: 0; }\n\n.public-DraftStyleDefault-depth0.public-DraftStyleDefault-listLTR {\n  margin-left: 1.5em; }\n\n.public-DraftStyleDefault-depth0.public-DraftStyleDefault-listRTL {\n  margin-right: 1.5em; }\n\n.public-DraftStyleDefault-depth1.public-DraftStyleDefault-listLTR {\n  margin-left: 3em; }\n\n.public-DraftStyleDefault-depth1.public-DraftStyleDefault-listRTL {\n  margin-right: 3em; }\n\n.public-DraftStyleDefault-depth2.public-DraftStyleDefault-listLTR {\n  margin-left: 4.5em; }\n\n.public-DraftStyleDefault-depth2.public-DraftStyleDefault-listRTL {\n  margin-right: 4.5em; }\n\n.public-DraftStyleDefault-depth3.public-DraftStyleDefault-listLTR {\n  margin-left: 6em; }\n\n.public-DraftStyleDefault-depth3.public-DraftStyleDefault-listRTL {\n  margin-right: 6em; }\n\n.public-DraftStyleDefault-depth4.public-DraftStyleDefault-listLTR {\n  margin-left: 7.5em; }\n\n.public-DraftStyleDefault-depth4.public-DraftStyleDefault-listRTL {\n  margin-right: 7.5em; }\n\n.public-DraftStyleDefault-unorderedListItem {\n  list-style-type: square;\n  position: relative; }\n\n.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-depth0 {\n  list-style-type: disc; }\n\n.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-depth1 {\n  list-style-type: circle; }\n\n.public-DraftStyleDefault-orderedListItem {\n  list-style-type: none;\n  position: relative; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listLTR:before {\n  left: -36px;\n  position: absolute;\n  text-align: right;\n  width: 30px; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listRTL:before {\n  position: absolute;\n  right: -36px;\n  text-align: left;\n  width: 30px; }\n\n.public-DraftStyleDefault-orderedListItem:before {\n  content: counter(ol0) \". \";\n  counter-increment: ol0; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth1:before {\n  content: counter(ol1) \". \";\n  counter-increment: ol1; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth2:before {\n  content: counter(ol2) \". \";\n  counter-increment: ol2; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth3:before {\n  content: counter(ol3) \". \";\n  counter-increment: ol3; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth4:before {\n  content: counter(ol4) \". \";\n  counter-increment: ol4; }\n\n.public-DraftStyleDefault-depth0.public-DraftStyleDefault-reset {\n  counter-reset: ol0; }\n\n.public-DraftStyleDefault-depth1.public-DraftStyleDefault-reset {\n  counter-reset: ol1; }\n\n.public-DraftStyleDefault-depth2.public-DraftStyleDefault-reset {\n  counter-reset: ol2; }\n\n.public-DraftStyleDefault-depth3.public-DraftStyleDefault-reset {\n  counter-reset: ol3; }\n\n.public-DraftStyleDefault-depth4.public-DraftStyleDefault-reset {\n  counter-reset: ol4; }\n", ""]);
+	exports.push([module.id, ".itsa-editor {\n  position: relative; }\n  .itsa-editor.disabled .itsa-editor-editarea {\n    cursor: not-allowed;\n    background-color: #EAEDED;\n    color: #656969; }\n  .itsa-editor .pure-control-group {\n    display: inline-block; }\n\n.itsa-editor-toolbar {\n  width: 100%;\n  padding: 0.2em 0.5em 0;\n  height: 2.6em;\n  background-color: #DDD;\n  position: relative;\n  z-index: 2; }\n  .itsa-editor-toolbar .toolbar-btn {\n    width: 2.4em;\n    padding-left: 0;\n    padding-right: 0;\n    padding-top: 0.6em;\n    text-align: center; }\n\n.itsa-editor-float-container {\n  width: 100%;\n  height: 100%;\n  position: relative;\n  z-index: 1; }\n\n.itsa-editor-with-toolbar .itsa-editor-float-container {\n  top: -2.6em;\n  padding-top: 2.6em; }\n\n.itsa-editor-editarea {\n  width: 100%;\n  height: 100%; }\n  .itsa-editor-editarea p {\n    margin: 0; }\n\n.itsa-editor,\n.itsa-editor-toolbar,\n.itsa-editor-float-container,\n.itsa-editor-editarea {\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box; }\n\n.DraftEditor-root {\n  height: 100%;\n  width: 100%;\n  overflow: scroll; }\n\n.DraftEditor-editorContainer,\n.public-DraftEditor-content {\n  height: 100%; }\n\n/* ===================================== */\n.DraftEditor-editorContainer,\n.DraftEditor-root,\n.public-DraftEditor-content {\n  /* height: inherit; */\n  text-align: initial; }\n\n.DraftEditor-root {\n  position: relative; }\n\n.DraftEditor-editorContainer {\n  background-color: rgba(255, 255, 255, 0);\n  border-left: .1px solid transparent;\n  position: relative;\n  z-index: 1; }\n\n.public-DraftEditor-block {\n  position: relative; }\n\n.DraftEditor-alignLeft .public-DraftStyleDefault-block {\n  text-align: left; }\n\n.DraftEditor-alignLeft .public-DraftEditorPlaceholder-root {\n  left: 0;\n  text-align: left; }\n\n.DraftEditor-alignCenter .public-DraftStyleDefault-block {\n  text-align: center; }\n\n.DraftEditor-alignCenter .public-DraftEditorPlaceholder-root {\n  margin: 0 auto;\n  text-align: center;\n  width: 100%; }\n\n.DraftEditor-alignRight .public-DraftStyleDefault-block {\n  text-align: right; }\n\n.DraftEditor-alignRight .public-DraftEditorPlaceholder-root {\n  right: 0;\n  text-align: right; }\n\n.public-DraftEditorPlaceholder-root {\n  color: #9197a3;\n  position: absolute;\n  z-index: 0; }\n\n.public-DraftEditorPlaceholder-hasFocus {\n  color: #bdc1c9; }\n\n.DraftEditorPlaceholder-hidden {\n  display: none; }\n\n.public-DraftStyleDefault-block {\n  position: relative;\n  white-space: pre-wrap; }\n\n.public-DraftStyleDefault-ltr {\n  direction: ltr;\n  text-align: left; }\n\n.public-DraftStyleDefault-rtl {\n  direction: rtl;\n  text-align: right; }\n\n.public-DraftStyleDefault-listLTR {\n  direction: ltr; }\n\n.public-DraftStyleDefault-listRTL {\n  direction: rtl; }\n\n.public-DraftStyleDefault-ol,\n.public-DraftStyleDefault-ul {\n  margin: 16px 0;\n  padding: 0; }\n\n.public-DraftStyleDefault-depth0.public-DraftStyleDefault-listLTR {\n  margin-left: 1.5em; }\n\n.public-DraftStyleDefault-depth0.public-DraftStyleDefault-listRTL {\n  margin-right: 1.5em; }\n\n.public-DraftStyleDefault-depth1.public-DraftStyleDefault-listLTR {\n  margin-left: 3em; }\n\n.public-DraftStyleDefault-depth1.public-DraftStyleDefault-listRTL {\n  margin-right: 3em; }\n\n.public-DraftStyleDefault-depth2.public-DraftStyleDefault-listLTR {\n  margin-left: 4.5em; }\n\n.public-DraftStyleDefault-depth2.public-DraftStyleDefault-listRTL {\n  margin-right: 4.5em; }\n\n.public-DraftStyleDefault-depth3.public-DraftStyleDefault-listLTR {\n  margin-left: 6em; }\n\n.public-DraftStyleDefault-depth3.public-DraftStyleDefault-listRTL {\n  margin-right: 6em; }\n\n.public-DraftStyleDefault-depth4.public-DraftStyleDefault-listLTR {\n  margin-left: 7.5em; }\n\n.public-DraftStyleDefault-depth4.public-DraftStyleDefault-listRTL {\n  margin-right: 7.5em; }\n\n.public-DraftStyleDefault-unorderedListItem {\n  list-style-type: square;\n  position: relative; }\n\n.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-depth0 {\n  list-style-type: disc; }\n\n.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-depth1 {\n  list-style-type: circle; }\n\n.public-DraftStyleDefault-orderedListItem {\n  list-style-type: none;\n  position: relative; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listLTR:before {\n  left: -36px;\n  position: absolute;\n  text-align: right;\n  width: 30px; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listRTL:before {\n  position: absolute;\n  right: -36px;\n  text-align: left;\n  width: 30px; }\n\n.public-DraftStyleDefault-orderedListItem:before {\n  content: counter(ol0) \". \";\n  counter-increment: ol0; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth1:before {\n  content: counter(ol1) \". \";\n  counter-increment: ol1; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth2:before {\n  content: counter(ol2) \". \";\n  counter-increment: ol2; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth3:before {\n  content: counter(ol3) \". \";\n  counter-increment: ol3; }\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth4:before {\n  content: counter(ol4) \". \";\n  counter-increment: ol4; }\n\n.public-DraftStyleDefault-depth0.public-DraftStyleDefault-reset {\n  counter-reset: ol0; }\n\n.public-DraftStyleDefault-depth1.public-DraftStyleDefault-reset {\n  counter-reset: ol1; }\n\n.public-DraftStyleDefault-depth2.public-DraftStyleDefault-reset {\n  counter-reset: ol2; }\n\n.public-DraftStyleDefault-depth3.public-DraftStyleDefault-reset {\n  counter-reset: ol3; }\n\n.public-DraftStyleDefault-depth4.public-DraftStyleDefault-reset {\n  counter-reset: ol4; }\n", ""]);
 
 	// exports
 
@@ -20635,6 +20635,19 @@
 
 
 	    /**
+	     * Empties the editor's content
+	     *
+	     * @method empty
+	     * @private
+	     * @since 15.1.0
+	     */
+	    empty: function empty() {
+	        var newEditorState = EditorState.createEmpty();
+	        this._handleEditorChange(newEditorState);
+	    },
+
+
+	    /**
 	     * Gets the initial props.
 	     *
 	     * @method getDefaultProps
@@ -20666,7 +20679,14 @@
 	     * @since 15.0.0
 	     */
 	    getHtml: function getHtml() {
-	        return stateToHTML(this.props.editorState.getCurrentContent());
+	        var props = this.props,
+	            propsEditorState = props.editorState,
+	            html = props.initialHtml;
+	        if (propsEditorState) {
+	            return stateToHTML(this.props.editorState.getCurrentContent());
+	        }
+	        // not edited yet: return default:
+	        return html || "";
 	    },
 
 
@@ -20681,30 +20701,35 @@
 	        var classname = MAIN_CLASS,
 	            editor = void 0,
 	            toolbar = void 0,
-	            editorState = void 0;
+	            editorState = void 0,
+	            styles = void 0;
 	        var instance = this,
 	            props = instance.props,
 	            disabled = !props.editable,
-	            toolbarItems = props.toolbarItems.itsa_deepClone(),
+	            minHeight = props.minHeight,
+	            toolbarItems = props.toolbarItems && props.toolbarItems.itsa_deepClone(),
 	            html = props.initialHtml,
 	            propsClass = props.className;
-	        if (this._initialHtml !== html) {
+	        if (instance._initialHtml !== html) {
 	            // need to reset the content
 	            editorState = EditorState.createWithContent(stateFromHTML(html));
-	            this._initialHtml = html;
+	            instance._initialHtml = html;
+	            // `Editor` will automatically inform the external state of the changes
 	        } else {
 	            editorState = isNode || props.editorState || (html ? EditorState.createWithContent(stateFromHTML(html)) : EditorState.createEmpty());
 	        }
 	        propsClass && (classname += " " + propsClass);
 	        if (isNode || disabled) {
+	            minHeight && (styles = { minHeight: minHeight });
 	            editor = React.createElement("div", {
 	                className: "DraftEditor-root",
-	                dangerouslySetInnerHTML: { __html: html } });
+	                dangerouslySetInnerHTML: { __html: instance.getHtml() },
+	                style: styles });
 	        } else {
 	            editor = React.createElement(Editor, {
 	                editorState: editorState,
-	                _handleKeyCommand: instance._handleKeyCommand,
-	                minHeight: props.minHeight,
+	                handleKeyCommand: instance._handleKeyCommand,
+	                minHeight: minHeight,
 	                onChange: instance._handleEditorChange,
 	                ref: "editor" });
 	        }
@@ -20749,6 +20774,22 @@
 
 
 	    /**
+	     * Resets the editor's content to its initial value, specified with `this.props.initialHtml`
+	     * (or empty if undefined)
+	     *
+	     * @method reset
+	     * @private
+	     * @since 15.1.0
+	     */
+	    reset: function reset() {
+	        var instance = this,
+	            initialHtml = instance._initialHtml,
+	            newEditorState = initialHtml ? EditorState.createWithContent(stateFromHTML(initialHtml)) : EditorState.createEmpty();
+	        instance._handleEditorChange(newEditorState);
+	    },
+
+
+	    /**
 	     * Will call `this.props.onChangeState`.
 	     * Note that `this.props.onChangeState` is responsible for reset this new state, by passing it through
 	     * to new `this.props.editorState`.
@@ -20783,7 +20824,7 @@
 	     * @since 15.0.0
 	     */
 	    _handleKeyCommand: function _handleKeyCommand(command) {
-	        var newState = RichUtils._handleKeyCommand(this.props.editorState, command);
+	        var newState = RichUtils.handleKeyCommand(this.props.editorState, command);
 	        if (newState) {
 	            this._handleEditorChange(newState);
 	            return true;
@@ -20800,6 +20841,7 @@
 	     *
 	     * @method _handleToolbarStateChange
 	     * @return ReactComponent
+	     * @private
 	     * @since 15.0.0
 	     */
 	    _handleToolbarStateChange: function _handleToolbarStateChange(newState) {
@@ -42976,11 +43018,12 @@
 /* 353 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
 	"user strict";
 
-	var Button = __webpack_require__(354),
-	    RichUtils = __webpack_require__(355);
+	var isNode = typeof global !== "undefined" && {}.toString.call(global) === "[object global]" && (!global.document || {}.toString.call(global.document) !== "[object HTMLDocument]"),
+	    Button = __webpack_require__(354),
+	    RichUtils = isNode || __webpack_require__(355);
 
 	var handleBoldClick = function handleBoldClick(editorState) {
 	    return RichUtils.toggleInlineStyle(editorState, "BOLD");
@@ -43017,7 +43060,10 @@
 	    }
 	}];
 
-	module.exports = toolbarItems;
+	module.exports = function () {
+	    return toolbarItems;
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 354 */

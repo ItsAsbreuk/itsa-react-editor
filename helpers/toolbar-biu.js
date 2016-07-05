@@ -43,4 +43,6 @@ const toolbarItems = [
     }
 ];
 
-module.exports = toolbarItems;
+module.exports = () => {
+    return toolbarItems;
+};

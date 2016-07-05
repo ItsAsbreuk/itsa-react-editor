@@ -211,6 +211,18 @@ const Component = React.createClass({
     },
 
     /**
+     * Empties the editor&#x27;s content
+     *
+     * @method empty
+     * @private
+     * @since 15.1.0
+     */
+    empty() {
+        const newEditorState = EditorState.createEmpty();
+        this._handleEditorChange(newEditorState);
+    },
+
+    /**
      * Gets the initial props.
      *
      * @method getDefaultProps
@@ -240,7 +252,14 @@ const Component = React.createClass({
      * @since 15.0.0
      */
     getHtml() {
-        return stateToHTML(this.props.editorState.getCurrentContent());
+        const props = this.props,
+            propsEditorState = props.editorState,
+            html = props.initialHtml;
+        if (propsEditorState) {
+            return stateToHTML(this.props.editorState.getCurrentContent());
+        }
+        // not edited yet: return default:
+        return html || &quot;&quot;;
     },
 
     /**
@@ -252,17 +271,19 @@ const Component = React.createClass({
      */
     render() {
         let classname = MAIN_CLASS,
-            editor, toolbar, editorState;
+            editor, toolbar, editorState, styles;
         const instance = this,
             props = instance.props,
             disabled = !props.editable,
-            toolbarItems = props.toolbarItems.itsa_deepClone(),
+            minHeight = props.minHeight,
+            toolbarItems = props.toolbarItems &amp;&amp; props.toolbarItems.itsa_deepClone(),
             html = props.initialHtml,
             propsClass = props.className;
-        if (this._initialHtml!==html) {
+        if (instance._initialHtml!==html) {
             // need to reset the content
             editorState = EditorState.createWithContent(stateFromHTML(html));
-            this._initialHtml = html;
+            instance._initialHtml = html;
+            // &#x60;Editor&#x60; will automatically inform the external state of the changes
         }
         else {
             editorState = isNode ||
@@ -271,15 +292,17 @@ const Component = React.createClass({
         }
         propsClass &amp;&amp; (classname+=&quot; &quot;+propsClass);
         if (isNode || disabled) {
+            minHeight &amp;&amp; (styles={minHeight: minHeight});
             editor = &lt;div
                 className=&quot;DraftEditor-root&quot;
-                dangerouslySetInnerHTML={{__html: html}} /&gt;;
+                dangerouslySetInnerHTML={{__html: instance.getHtml()}}
+                style={styles} /&gt;;
         }
         else {
             editor = &lt;Editor
                 editorState={editorState}
-                _handleKeyCommand={instance._handleKeyCommand}
-                minHeight={props.minHeight}
+                handleKeyCommand={instance._handleKeyCommand}
+                minHeight={minHeight}
                 onChange={instance._handleEditorChange}
                 ref=&quot;editor&quot; /&gt;;
         }
@@ -320,6 +343,23 @@ const Component = React.createClass({
     },
 
     /**
+     * Resets the editor&#x27;s content to its initial value, specified with &#x60;this.props.initialHtml&#x60;
+     * (or empty if undefined)
+     *
+     * @method reset
+     * @private
+     * @since 15.1.0
+     */
+    reset() {
+        const instance = this,
+            initialHtml = instance._initialHtml,
+            newEditorState = initialHtml ?
+                             EditorState.createWithContent(stateFromHTML(initialHtml)) :
+                             EditorState.createEmpty();
+        instance._handleEditorChange(newEditorState);
+    },
+
+    /**
      * Will call &#x60;this.props.onChangeState&#x60;.
      * Note that &#x60;this.props.onChangeState&#x60; is responsible for reset this new state, by passing it through
      * to new &#x60;this.props.editorState&#x60;.
@@ -353,7 +393,7 @@ const Component = React.createClass({
      * @since 15.0.0
      */
     _handleKeyCommand(command) {
-        const newState = RichUtils._handleKeyCommand(this.props.editorState, command);
+        const newState = RichUtils.handleKeyCommand(this.props.editorState, command);
         if (newState) {
             this._handleEditorChange(newState);
             return true;
@@ -369,6 +409,7 @@ const Component = React.createClass({
      *
      * @method _handleToolbarStateChange
      * @return ReactComponent
+     * @private
      * @since 15.0.0
      */
     _handleToolbarStateChange(newState) {

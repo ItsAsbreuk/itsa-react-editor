@@ -4,6 +4,12 @@ $height-toolbar: 2.6em;
 .itsa-editor {
     position: relative;
 
+    &.disabled .itsa-editor-editarea {
+        cursor: not-allowed;
+        background-color: #EAEDED;
+        color: #656969;
+    }
+
     .pure-control-group {
         display: inline-block;
     }
@@ -21,6 +27,7 @@ $height-toolbar: 2.6em;
         width: 2.4em;
         padding-left: 0;
         padding-right: 0;
+        padding-top: 0.6em;
         text-align: center;
     }
 }
@@ -40,6 +47,10 @@ $height-toolbar: 2.6em;
 .itsa-editor-editarea {
     width: 100%;
     height: 100%;
+
+    p {
+        margin: 0;
+    }
 }
 
 .itsa-editor,

@@ -128,6 +128,18 @@ const Component = React.createClass({
     },
 
     /**
+     * Empties the editor's content
+     *
+     * @method empty
+     * @private
+     * @since 15.1.0
+     */
+    empty() {
+        const newEditorState = EditorState.createEmpty();
+        this._handleEditorChange(newEditorState);
+    },
+
+    /**
      * Gets the initial props.
      *
      * @method getDefaultProps
@@ -157,7 +169,14 @@ const Component = React.createClass({
      * @since 15.0.0
      */
     getHtml() {
-        return stateToHTML(this.props.editorState.getCurrentContent());
+        const props = this.props,
+            propsEditorState = props.editorState,
+            html = props.initialHtml;
+        if (propsEditorState) {
+            return stateToHTML(this.props.editorState.getCurrentContent());
+        }
+        // not edited yet: return default:
+        return html || "";
     },
 
     /**
@@ -177,10 +196,11 @@ const Component = React.createClass({
             toolbarItems = props.toolbarItems && props.toolbarItems.itsa_deepClone(),
             html = props.initialHtml,
             propsClass = props.className;
-        if (this._initialHtml!==html) {
+        if (instance._initialHtml!==html) {
             // need to reset the content
             editorState = EditorState.createWithContent(stateFromHTML(html));
-            this._initialHtml = html;
+            instance._initialHtml = html;
+            // `Editor` will automatically inform the external state of the changes
         }
         else {
             editorState = isNode ||
@@ -192,7 +212,7 @@ const Component = React.createClass({
             minHeight && (styles={minHeight: minHeight});
             editor = <div
                 className="DraftEditor-root"
-                dangerouslySetInnerHTML={{__html: html}}
+                dangerouslySetInnerHTML={{__html: instance.getHtml()}}
                 style={styles} />;
         }
         else {
@@ -237,6 +257,23 @@ const Component = React.createClass({
                 </div>
             </div>
         );
+    },
+
+    /**
+     * Resets the editor's content to its initial value, specified with `this.props.initialHtml`
+     * (or empty if undefined)
+     *
+     * @method reset
+     * @private
+     * @since 15.1.0
+     */
+    reset() {
+        const instance = this,
+            initialHtml = instance._initialHtml,
+            newEditorState = initialHtml ?
+                             EditorState.createWithContent(stateFromHTML(initialHtml)) :
+                             EditorState.createEmpty();
+        instance._handleEditorChange(newEditorState);
     },
 
     /**
@@ -289,6 +326,7 @@ const Component = React.createClass({
      *
      * @method _handleToolbarStateChange
      * @return ReactComponent
+     * @private
      * @since 15.0.0
      */
     _handleToolbarStateChange(newState) {

@@ -8,6 +8,8 @@ Currently only a predefined toolbar with simple BIU buttons, but you can easily 
 
 Feel free to use this Component, or use Facebook's awesome Draft.js, if you want a more low-level Editor, which will need more setup.
 
+**Note** As from version `15.1.0` the toolbar-helpers return a function that needs to be invoked. This is, because future toolbars mey accept a config.
+
 ## How to use:
 
 Below are some setups. You can retrieve the Html of the editor (f.e. when you want to save the content), by means of componentInstance.getHtml().
@@ -24,7 +26,7 @@ let editor;
 const React = require("react"),
     ReactDOM = require("react-dom"),
     Editor = require("itsa-react-editor"),
-    toolbarBIU = require("itsa-react-editor/helpers/toolbar-biu");
+    toolbarBIU = require("itsa-react-editor/helpers/toolbar-biu")(); // invoke!
 
 const handleStateChange = editorState => {
     props.editorState = editorState;
@@ -57,6 +59,8 @@ renderEditor();
 ```
 
 #### Extended usage with own buttons
+Make sure that the button-callbacks return a new editorState:
+
 ```js
 "use strict";
 
