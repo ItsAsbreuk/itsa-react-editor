@@ -43,6 +43,15 @@ const Component = React.createClass({
 
     propTypes: {
         /**
+         * Decorator for the editor
+         *
+         * @property decorator
+         * @type Object
+         * @since 15.0.3
+        */
+        decorator: PropTypes.object,
+
+        /**
          * Whether the editor is `editable`
          *
          * @property editable
@@ -124,7 +133,10 @@ const Component = React.createClass({
      * @since 15.0.0
      */
     componentWillMount() {
-        this._initialHtml = this.props.initialHtml;
+        const instance = this,
+            props = instance.props;
+        instance._initialHtml = props.initialHtml;
+        instance._decorator = props.decorator;
     },
 
     /**
@@ -193,19 +205,27 @@ const Component = React.createClass({
             props = instance.props,
             disabled = !props.editable,
             minHeight = props.minHeight,
+            decorator = props.decorator,
             toolbarItems = props.toolbarItems && props.toolbarItems.itsa_deepClone(),
             html = props.initialHtml,
             propsClass = props.className;
         if (instance._initialHtml!==html) {
             // need to reset the content
-            editorState = EditorState.createWithContent(stateFromHTML(html));
+            editorState = EditorState.createWithContent(stateFromHTML(html), decorator);
             instance._initialHtml = html;
+            instance._decorator = decorator;
+            // `Editor` will automatically inform the external state of the changes
+        }
+        if (instance._decorator!==decorator) {
+            // need to reset the content
+            editorState = (html ? EditorState.createWithContent(stateFromHTML(html), decorator) : EditorState.createEmpty(decorator));
+            instance._decorator = decorator;
             // `Editor` will automatically inform the external state of the changes
         }
         else {
             editorState = isNode ||
                           props.editorState ||
-                          (html ? EditorState.createWithContent(stateFromHTML(html)) : EditorState.createEmpty());
+                          (html ? EditorState.createWithContent(stateFromHTML(html), decorator) : EditorState.createEmpty(decorator));
         }
         propsClass && (classname+=" "+propsClass);
         if (isNode || disabled) {
@@ -232,7 +252,7 @@ const Component = React.createClass({
                          itemProps[prop] = function() {
                             let newState;
                             if (editorState) {
-                                newState = val.call(instance, editorState);
+                                newState = val.apply(instance, Array.prototype.concat.apply(editorState, arguments));
                                 newState && instance._handleToolbarStateChange(newState);
                             }
                          }

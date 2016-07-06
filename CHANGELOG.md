@@ -1,3 +1,15 @@
+#version 15.1.4
+serverside rendering patch to prevent `window.jQuery` error
+
+#version 15.1.3
+Added property `decorator` and 2 helpers:
+
+* composite-decorator
+* entity
+
+#version 15.1.2
+Passing through arguments of the callback functions
+
 #version 15.1.1
 Updated dependencies
 
