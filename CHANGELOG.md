@@ -1,3 +1,6 @@
+#version 15.1.1
+Updated dependencies
+
 #version 15.1.0
 Added 2 methods:
 * empty()
