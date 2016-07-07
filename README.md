@@ -26,7 +26,7 @@ let editor;
 const React = require("react"),
     ReactDOM = require("react-dom"),
     Editor = require("itsa-react-editor"),
-    toolbarBIU = require("itsa-react-editor/helpers/toolbar/biu")(); // invoke!
+    toolbarBIU = require("itsa-react-editor/helpers/toolbars/biu")(); // invoke!
 
 const handleStateChange = editorState => {
     props.editorState = editorState;

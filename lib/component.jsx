@@ -18,10 +18,11 @@ require("itsa-jsext/lib/object");
 
 let DraftJS, Editor, EditorState, RichUtils, stateToHTML, stateFromHTML;
 
-const isNode = (typeof global!=="undefined") && ({}.toString.call(global)==="[object global]") && (!global.document || ({}.toString.call(global.document)!=="[object HTMLDocument]")),
+const utils = require("itsa-utils"),
+    isNode = utils.isNode,
     React = require("react"),
     PropTypes = React.PropTypes,
-    async = require("itsa-utils").async,
+    async = utils.async,
     Form = require("itsa-react-form"),
     MAIN_CLASS = "itsa-editor",
     MAIN_CLASS_PREFIX = MAIN_CLASS+"-",

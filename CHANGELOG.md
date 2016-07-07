@@ -1,3 +1,15 @@
+#version 15.2.4
+Updated dev-dependencies
+
+#version 15.2.3
+Optimized support serverside rendering
+
+#version 15.2.2
+Fixed toolbar biu after moving into subfolder
+
+#version 15.2.1
+Updated readme
+
 #version 15.2.0
 Moved toolbars from /helpers/ into /helpers/toolbar/
 Added more helpers

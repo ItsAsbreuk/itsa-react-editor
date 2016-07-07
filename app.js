@@ -5,7 +5,7 @@ require("itsa-react-button/css/component.scss");
 const React = require("react"),
     ReactDOM = require("react-dom"),
     Component = require("./lib/component-styled.jsx"),
-    toolbarBIU = require("./helpers/toolbar/biu")(); // invoke!
+    toolbarBIU = require("./helpers/toolbars/biu")(); // invoke!
 
 const handleStateChange = editorState => {
     props.editorState = editorState;
@@ -13,7 +13,7 @@ const handleStateChange = editorState => {
 };
 
 let props = {
-    editable: true,
+    editable: false,
     initialHtml: 'Hello World!',
     minHeight: '200px',
     onChange: function(cb) {

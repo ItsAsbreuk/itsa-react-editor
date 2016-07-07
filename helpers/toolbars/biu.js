@@ -1,8 +1,8 @@
 "user strict";
 
-const isNode = (typeof global!=="undefined") && ({}.toString.call(global)==="[object global]") && (!global.document || ({}.toString.call(global.document)!=="[object HTMLDocument]")),
+const isNode = require("itsa-utils").isNode,
     Button = require("itsa-react-button"),
-    RichUtils = isNode || require("./rich-utils");
+    RichUtils = isNode || require("../rich-utils");
 
 const handleBoldClick = editorState => {
     return RichUtils.toggleInlineStyle(editorState, "BOLD");
