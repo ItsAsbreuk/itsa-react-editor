@@ -1,3 +1,7 @@
+#version 15.2.0
+Moved toolbars from /helpers/ into /helpers/toolbar/
+Added more helpers
+
 #version 15.1.4
 serverside rendering patch to prevent `window.jQuery` error
 
