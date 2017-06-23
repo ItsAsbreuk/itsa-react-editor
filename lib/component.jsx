@@ -14,14 +14,14 @@
  * @since 15.0.0
 */
 
-require("itsa-jsext/lib/object");
+require("itsa-jsext");
 
 let DraftJS, Editor, EditorState, RichUtils, stateToHTML, stateFromHTML;
 
 const utils = require("itsa-utils"),
     isNode = utils.isNode,
     React = require("react"),
-    PropTypes = React.PropTypes,
+    PropTypes = require("prop-types"),
     async = utils.async,
     Form = require("itsa-react-form"),
     MAIN_CLASS = "itsa-editor",
@@ -40,91 +40,18 @@ if (!isNode) {
     stateFromHTML = require("./stateFromHTML");
 }
 
-const Component = React.createClass({
-
-    propTypes: {
-        /**
-         * Decorator for the editor
-         *
-         * @property decorator
-         * @type Object
-         * @since 15.0.3
-        */
-        decorator: PropTypes.object,
-
-        /**
-         * Whether the editor is `editable`
-         *
-         * @property editable
-         * @type Boolean
-         * @default true
-         * @since 15.0.0
-        */
-        editable: PropTypes.bool,
-
-        /**
-         * The Component's editor-state. This is am important property: it needs to be reset
-         * every time the editable-area is changed, by listening to the `onChangeState` property.
-         *
-         * @property editorState
-         * @type Object
-         * @since 15.0.0
-        */
-        editorState: PropTypes.object,
-
-        /**
-         * The initial content of the editor.
-         *
-         * @property initialHtml
-         * @type String
-         * @since 15.0.0
-        */
-        initialHtml: PropTypes.string,
-
-        /**
-         * To specify a minimum height of the editable area.
-         * You best need this property, because min-height cannot be set on the Component-class (this doesn't work).
-         * Using classes would mean you'll need to set a deeper div
-         * where you would need nested classes, to prevent all other editors having the same min-height.
-         *
-         * @property minHeight
-         * @type String
-         * @since 15.0.0
-        */
-        minHeight: PropTypes.string,
-
-        /**
-         * Callback whenever the editable-content is changed.
-         *
-         * @property onChange
-         * @type Function
-         * @since 15.0.0
-        */
-        onChange: PropTypes.func,
-
-        /**
-         * The callback for the editor's state-change. This is the most important property: it needs to handle
-         * state-changes, by re-defining the property `editorState` every time the editable-area is changed.
-         *
-         * The callback recieves one argument: the new `editorState`
-         *
-         * @property onChangeState
-         * @type Function
-         * @since 15.0.0
-        */
-        onChangeState: PropTypes.func.isRequired,
-
-        /**
-         * An array with the definition of the toolbar-items.
-         * Because it uses the structure of `itsa-react-form`, you can read more about this
-         * feature here: https://www.npmjs.com/package/itsa-react-form
-         *
-         * @property toolbarItems
-         * @type Array
-         * @since 15.0.0
-        */
-        toolbarItems: PropTypes.array
-    },
+class Component extends React.Component {
+    constructor(props) {
+        super(props);
+        const instance = this;
+        instance.empty = instance.empty.bind(instance);
+        instance.focus = instance.focus.bind(instance);
+        instance.getHtml = instance.getHtml.bind(instance);
+        instance.reset = instance.reset.bind(instance);
+        instance._handleEditorChange = instance._handleEditorChange.bind(instance);
+        instance._handleKeyCommand = instance._handleKeyCommand.bind(instance);
+        instance._handleToolbarStateChange = instance._handleToolbarStateChange.bind(instance);
+    }
 
     /**
      * Callbcak when the component will mount.
@@ -138,7 +65,7 @@ const Component = React.createClass({
             props = instance.props;
         instance._initialHtml = props.initialHtml;
         instance._decorator = props.decorator;
-    },
+    }
 
     /**
      * Empties the editor's content
@@ -150,18 +77,7 @@ const Component = React.createClass({
     empty() {
         const newEditorState = EditorState.createEmpty();
         this._handleEditorChange(newEditorState);
-    },
-
-    /**
-     * Gets the initial props.
-     *
-     * @method getDefaultProps
-     * @return Object
-     * @since 15.0.0
-     */
-    getDefaultProps() {
-        return {editable: true};
-    },
+    }
 
     /**
      * Will set the focus on the editable area.
@@ -172,7 +88,7 @@ const Component = React.createClass({
     focus() {
         const editor = this.refs.editor;
         editor && editor.focus();
-    },
+    }
 
     /**
      * Generates the `html` of the editable area.
@@ -190,7 +106,7 @@ const Component = React.createClass({
         }
         // not edited yet: return default:
         return html || "";
-    },
+    }
 
     /**
      * React render-method --> renderes the Component.
@@ -278,7 +194,7 @@ const Component = React.createClass({
                 </div>
             </div>
         );
-    },
+    }
 
     /**
      * Resets the editor's content to its initial value, specified with `this.props.initialHtml`
@@ -295,7 +211,7 @@ const Component = React.createClass({
                              EditorState.createWithContent(stateFromHTML(initialHtml)) :
                              EditorState.createEmpty();
         instance._handleEditorChange(newEditorState);
-    },
+    }
 
     /**
      * Will call `this.props.onChangeState`.
@@ -320,7 +236,7 @@ const Component = React.createClass({
                 onChange({component: instance, getHtml: instance.getHtml});
             });
         }
-    },
+    }
 
     /**
      * Processes keyboard-commands and will set the new state by calling `_handleEditorChange`.
@@ -337,7 +253,7 @@ const Component = React.createClass({
             return true;
         }
         return false;
-    },
+    }
 
     /**
      * Processes state-changes that are generated by the toolbar.
@@ -355,6 +271,94 @@ const Component = React.createClass({
         async(() => this.focus());
     }
 
-});
+}
+
+Component.propTypes = {
+    /**
+     * Decorator for the editor
+     *
+     * @property decorator
+     * @type Object
+     * @since 15.0.3
+    */
+    decorator: PropTypes.object,
+
+    /**
+     * Whether the editor is `editable`
+     *
+     * @property editable
+     * @type Boolean
+     * @default true
+     * @since 15.0.0
+    */
+    editable: PropTypes.bool,
+
+    /**
+     * The Component's editor-state. This is am important property: it needs to be reset
+     * every time the editable-area is changed, by listening to the `onChangeState` property.
+     *
+     * @property editorState
+     * @type Object
+     * @since 15.0.0
+    */
+    editorState: PropTypes.object,
+
+    /**
+     * The initial content of the editor.
+     *
+     * @property initialHtml
+     * @type String
+     * @since 15.0.0
+    */
+    initialHtml: PropTypes.string,
+
+    /**
+     * To specify a minimum height of the editable area.
+     * You best need this property, because min-height cannot be set on the Component-class (this doesn't work).
+     * Using classes would mean you'll need to set a deeper div
+     * where you would need nested classes, to prevent all other editors having the same min-height.
+     *
+     * @property minHeight
+     * @type String
+     * @since 15.0.0
+    */
+    minHeight: PropTypes.string,
+
+    /**
+     * Callback whenever the editable-content is changed.
+     *
+     * @property onChange
+     * @type Function
+     * @since 15.0.0
+    */
+    onChange: PropTypes.func,
+
+    /**
+     * The callback for the editor's state-change. This is the most important property: it needs to handle
+     * state-changes, by re-defining the property `editorState` every time the editable-area is changed.
+     *
+     * The callback recieves one argument: the new `editorState`
+     *
+     * @property onChangeState
+     * @type Function
+     * @since 15.0.0
+    */
+    onChangeState: PropTypes.func.isRequired,
+
+    /**
+     * An array with the definition of the toolbar-items.
+     * Because it uses the structure of `itsa-react-form`, you can read more about this
+     * feature here: https://www.npmjs.com/package/itsa-react-form
+     *
+     * @property toolbarItems
+     * @type Array
+     * @since 15.0.0
+    */
+    toolbarItems: PropTypes.array
+};
+
+Component.defaultProps = {
+    editable: true
+};
 
 module.exports = Component;

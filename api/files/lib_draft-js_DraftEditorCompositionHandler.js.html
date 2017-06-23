@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>lib/draft-js/DraftEditorCompositionHandler.js - itsa-react-editor</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="https://avatars0.githubusercontent.com/u/8314644?v=3&amp;s=84" title="itsa-react-editor"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.0.1</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/Editor.html">Editor</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                                <li><a href="../modules/component.jsx.html">component.jsx</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1 class="file-heading">File: lib/draft-js/DraftEditorCompositionHandler.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule DraftEditorCompositionHandler
+ * 
+ */
+
+&#x27;use strict&#x27;;
+
+var DraftModifier = require(&#x27;./DraftModifier&#x27;);
+var EditorState = require(&#x27;./EditorState&#x27;);
+var Keys = require(&#x27;fbjs/lib/Keys&#x27;);
+
+var getEntityKeyForSelection = require(&#x27;./getEntityKeyForSelection&#x27;);
+var isSelectionAtLeafStart = require(&#x27;./isSelectionAtLeafStart&#x27;);
+
+/**
+ * Millisecond delay to allow &#x60;compositionstart&#x60; to fire again upon
+ * &#x60;compositionend&#x60;.
+ *
+ * This is used for Korean input to ensure that typing can continue without
+ * the editor trying to render too quickly. More specifically, Safari 7.1+
+ * triggers &#x60;compositionstart&#x60; a little slower than Chrome/FF, which
+ * leads to composed characters being resolved and re-render occurring
+ * sooner than we want.
+ */
+var RESOLVE_DELAY = 20;
+
+/**
+ * A handful of variables used to track the current composition and its
+ * resolution status. These exist at the module level because it is not
+ * possible to have compositions occurring in multiple editors simultaneously,
+ * and it simplifies state management with respect to the DraftEditor component.
+ */
+var resolved = false;
+var stillComposing = false;
+var textInputData = &#x27;&#x27;;
+
+var DraftEditorCompositionHandler = {
+  onBeforeInput: function onBeforeInput(e) {
+    textInputData = (textInputData || &#x27;&#x27;) + e.data;
+  },
+
+  /**
+   * A &#x60;compositionstart&#x60; event has fired while we&#x27;re still in composition
+   * mode. Continue the current composition session to prevent a re-render.
+   */
+  onCompositionStart: function onCompositionStart() {
+    stillComposing = true;
+  },
+
+  /**
+   * Attempt to end the current composition session.
+   *
+   * Defer handling because browser will still insert the chars into active
+   * element after &#x60;compositionend&#x60;. If a &#x60;compositionstart&#x60; event fires
+   * before &#x60;resolveComposition&#x60; executes, our composition session will
+   * continue.
+   *
+   * The &#x60;resolved&#x60; flag is useful because certain IME interfaces fire the
+   * &#x60;compositionend&#x60; event multiple times, thus queueing up multiple attempts
+   * at handling the composition. Since handling the same composition event
+   * twice could break the DOM, we only use the first event. Example: Arabic
+   * Google Input Tools on Windows 8.1 fires &#x60;compositionend&#x60; three times.
+   */
+  onCompositionEnd: function onCompositionEnd() {
+    var _this = this;
+
+    resolved = false;
+    stillComposing = false;
+    setTimeout(function () {
+      if (!resolved) {
+        DraftEditorCompositionHandler.resolveComposition.call(_this);
+      }
+    }, RESOLVE_DELAY);
+  },
+
+  /**
+   * In Safari, keydown events may fire when committing compositions. If
+   * the arrow keys are used to commit, prevent default so that the cursor
+   * doesn&#x27;t move, otherwise it will jump back noticeably on re-render.
+   */
+  onKeyDown: function onKeyDown(e) {
+    if (e.which === Keys.RIGHT || e.which === Keys.LEFT) {
+      e.preventDefault();
+    }
+  },
+
+  /**
+   * Keypress events may fire when committing compositions. In Firefox,
+   * pressing RETURN commits the composition and inserts extra newline
+   * characters that we do not want. &#x60;preventDefault&#x60; allows the composition
+   * to be committed while preventing the extra characters.
+   */
+  onKeyPress: function onKeyPress(e) {
+    if (e.which === Keys.RETURN) {
+      e.preventDefault();
+    }
+  },
+
+  /**
+   * Attempt to insert composed characters into the document.
+   *
+   * If we are still in a composition session, do nothing. Otherwise, insert
+   * the characters into the document and terminate the composition session.
+   *
+   * If no characters were composed -- for instance, the user
+   * deleted all composed characters and committed nothing new --
+   * force a re-render. We also re-render when the composition occurs
+   * at the beginning of a leaf, to ensure that if the browser has
+   * created a new text node for the composition, we will discard it.
+   *
+   * Resetting innerHTML will move focus to the beginning of the editor,
+   * so we update to force it back to the correct place.
+   */
+  resolveComposition: function resolveComposition() {
+    if (stillComposing) {
+      return;
+    }
+
+    resolved = true;
+    var composedChars = textInputData;
+    textInputData = &#x27;&#x27;;
+
+    var editorState = EditorState.set(this.props.editorState, {
+      inCompositionMode: false
+    });
+
+    var currentStyle = editorState.getCurrentInlineStyle();
+    var entityKey = getEntityKeyForSelection(editorState.getCurrentContent(), editorState.getSelection());
+
+    var mustReset = !composedChars || isSelectionAtLeafStart(editorState) || currentStyle.size &gt; 0 || entityKey !== null;
+
+    if (mustReset) {
+      this.restoreEditorDOM();
+    }
+
+    this.exitCurrentMode();
+    this.removeRenderGuard();
+
+    if (composedChars) {
+      // If characters have been composed, re-rendering with the update
+      // is sufficient to reset the editor.
+      var contentState = DraftModifier.replaceText(editorState.getCurrentContent(), editorState.getSelection(), composedChars, currentStyle, entityKey);
+      this.update(EditorState.push(editorState, contentState, &#x27;insert-characters&#x27;));
+      return;
+    }
+
+    if (mustReset) {
+      this.update(EditorState.set(editorState, {
+        nativelyRenderedContent: null,
+        forceSelection: true
+      }));
+    }
+  }
+};
+
+module.exports = DraftEditorCompositionHandler;
+    </pre>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

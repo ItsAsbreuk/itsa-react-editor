@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>lib/draft-js/RichTextEditorUtil.js - itsa-react-editor</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="https://avatars0.githubusercontent.com/u/8314644?v=3&amp;s=84" title="itsa-react-editor"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.0.1</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/Editor.html">Editor</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                                <li><a href="../modules/component.jsx.html">component.jsx</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1 class="file-heading">File: lib/draft-js/RichTextEditorUtil.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule RichTextEditorUtil
+ * @typechecks
+ * 
+ */
+
+&#x27;use strict&#x27;;
+
+var DraftEntity = require(&#x27;./DraftEntity&#x27;);
+var DraftModifier = require(&#x27;./DraftModifier&#x27;);
+var EditorState = require(&#x27;./EditorState&#x27;);
+var SelectionState = require(&#x27;./SelectionState&#x27;);
+
+var adjustBlockDepthForContentState = require(&#x27;./adjustBlockDepthForContentState&#x27;);
+var nullthrows = require(&#x27;fbjs/lib/nullthrows&#x27;);
+
+var RichTextEditorUtil = {
+  currentBlockContainsLink: function currentBlockContainsLink(editorState) {
+    var selection = editorState.getSelection();
+    return editorState.getCurrentContent().getBlockForKey(selection.getAnchorKey()).getCharacterList().slice(selection.getStartOffset(), selection.getEndOffset()).some(function (v) {
+      var entity = v.getEntity();
+      return !!entity &amp;&amp; DraftEntity.get(entity).getType() === &#x27;LINK&#x27;;
+    });
+  },
+
+  getCurrentBlockType: function getCurrentBlockType(editorState) {
+    var selection = editorState.getSelection();
+    return editorState.getCurrentContent().getBlockForKey(selection.getStartKey()).getType();
+  },
+
+  getDataObjectForLinkURL: function getDataObjectForLinkURL(uri) {
+    return { url: uri.toString() };
+  },
+
+  handleKeyCommand: function handleKeyCommand(editorState, command) {
+    switch (command) {
+      case &#x27;bold&#x27;:
+        return RichTextEditorUtil.toggleInlineStyle(editorState, &#x27;BOLD&#x27;);
+      case &#x27;italic&#x27;:
+        return RichTextEditorUtil.toggleInlineStyle(editorState, &#x27;ITALIC&#x27;);
+      case &#x27;underline&#x27;:
+        return RichTextEditorUtil.toggleInlineStyle(editorState, &#x27;UNDERLINE&#x27;);
+      case &#x27;code&#x27;:
+        return RichTextEditorUtil.toggleCode(editorState);
+      case &#x27;backspace&#x27;:
+      case &#x27;backspace-word&#x27;:
+      case &#x27;backspace-to-start-of-line&#x27;:
+        return RichTextEditorUtil.onBackspace(editorState);
+      case &#x27;delete&#x27;:
+      case &#x27;delete-word&#x27;:
+      case &#x27;delete-to-end-of-block&#x27;:
+        return RichTextEditorUtil.onDelete(editorState);
+      default:
+        return null;
+    }
+  },
+
+  insertSoftNewline: function insertSoftNewline(editorState) {
+    var contentState = DraftModifier.insertText(editorState.getCurrentContent(), editorState.getSelection(), &#x27;\n&#x27;, editorState.getCurrentInlineStyle(), null);
+
+    var newEditorState = EditorState.push(editorState, contentState, &#x27;insert-characters&#x27;);
+
+    return EditorState.forceSelection(newEditorState, contentState.getSelectionAfter());
+  },
+
+  /**
+   * For collapsed selections at the start of styled blocks, backspace should
+   * just remove the existing style.
+   */
+  onBackspace: function onBackspace(editorState) {
+    var selection = editorState.getSelection();
+    if (!selection.isCollapsed() || selection.getAnchorOffset() || selection.getFocusOffset()) {
+      return null;
+    }
+
+    // First, try to remove a preceding atomic block.
+    var content = editorState.getCurrentContent();
+    var startKey = selection.getStartKey();
+    var blockBefore = content.getBlockBefore(startKey);
+
+    if (blockBefore &amp;&amp; blockBefore.getType() === &#x27;atomic&#x27;) {
+      var atomicBlockTarget = selection.merge({
+        anchorKey: blockBefore.getKey(),
+        anchorOffset: 0
+      });
+      var asCurrentStyle = DraftModifier.setBlockType(content, atomicBlockTarget, content.getBlockForKey(startKey).getType());
+      var withoutAtomicBlock = DraftModifier.removeRange(asCurrentStyle, atomicBlockTarget, &#x27;backward&#x27;);
+      if (withoutAtomicBlock !== content) {
+        return EditorState.push(editorState, withoutAtomicBlock, &#x27;remove-range&#x27;);
+      }
+    }
+
+    // If that doesn&#x27;t succeed, try to remove the current block style.
+    var withoutBlockStyle = RichTextEditorUtil.tryToRemoveBlockStyle(editorState);
+
+    if (withoutBlockStyle) {
+      return EditorState.push(editorState, withoutBlockStyle, &#x27;change-block-type&#x27;);
+    }
+
+    return null;
+  },
+
+  onDelete: function onDelete(editorState) {
+    var selection = editorState.getSelection();
+    if (!selection.isCollapsed()) {
+      return null;
+    }
+
+    var content = editorState.getCurrentContent();
+    var startKey = selection.getStartKey();
+    var block = content.getBlockForKey(startKey);
+    var length = block.getLength();
+
+    // The cursor is somewhere within the text. Behave normally.
+    if (selection.getStartOffset() &lt; length) {
+      return null;
+    }
+
+    var blockAfter = content.getBlockAfter(startKey);
+
+    if (!blockAfter || blockAfter.getType() !== &#x27;atomic&#x27;) {
+      return null;
+    }
+
+    var atomicBlockTarget = selection.merge({
+      focusKey: blockAfter.getKey(),
+      focusOffset: blockAfter.getLength()
+    });
+
+    var withoutAtomicBlock = DraftModifier.removeRange(content, atomicBlockTarget, &#x27;forward&#x27;);
+
+    if (withoutAtomicBlock !== content) {
+      return EditorState.push(editorState, withoutAtomicBlock, &#x27;remove-range&#x27;);
+    }
+
+    return null;
+  },
+
+  onTab: function onTab(event, editorState, maxDepth) {
+    var selection = editorState.getSelection();
+    var key = selection.getAnchorKey();
+    if (key !== selection.getFocusKey()) {
+      return editorState;
+    }
+
+    var content = editorState.getCurrentContent();
+    var block = content.getBlockForKey(key);
+    var type = block.getType();
+    if (type !== &#x27;unordered-list-item&#x27; &amp;&amp; type !== &#x27;ordered-list-item&#x27;) {
+      return editorState;
+    }
+
+    event.preventDefault();
+
+    // Only allow indenting one level beyond the block above, and only if
+    // the block above is a list item as well.
+    var blockAbove = content.getBlockBefore(key);
+    if (!blockAbove) {
+      return editorState;
+    }
+
+    var typeAbove = blockAbove.getType();
+    if (typeAbove !== &#x27;unordered-list-item&#x27; &amp;&amp; typeAbove !== &#x27;ordered-list-item&#x27;) {
+      return editorState;
+    }
+
+    var depth = block.getDepth();
+    if (!event.shiftKey &amp;&amp; depth === maxDepth) {
+      return editorState;
+    }
+
+    maxDepth = Math.min(blockAbove.getDepth() + 1, maxDepth);
+
+    var withAdjustment = adjustBlockDepthForContentState(content, selection, event.shiftKey ? -1 : 1, maxDepth);
+
+    return EditorState.push(editorState, withAdjustment, &#x27;adjust-depth&#x27;);
+  },
+
+  toggleBlockType: function toggleBlockType(editorState, blockType) {
+    var selection = editorState.getSelection();
+    var startKey = selection.getStartKey();
+    var endKey = selection.getEndKey();
+    var content = editorState.getCurrentContent();
+    var target = selection;
+
+    // Triple-click can lead to a selection that includes offset 0 of the
+    // following block. The &#x60;SelectionState&#x60; for this case is accurate, but
+    // we should avoid toggling block type for the trailing block because it
+    // is a confusing interaction.
+    if (startKey !== endKey &amp;&amp; selection.getEndOffset() === 0) {
+      var blockBefore = nullthrows(content.getBlockBefore(endKey));
+      endKey = blockBefore.getKey();
+      target = target.merge({
+        anchorKey: startKey,
+        anchorOffset: selection.getStartOffset(),
+        focusKey: endKey,
+        focusOffset: blockBefore.getLength(),
+        isBackward: false
+      });
+    }
+
+    var hasAtomicBlock = content.getBlockMap().skipWhile(function (_, k) {
+      return k !== startKey;
+    }).takeWhile(function (_, k) {
+      return k !== endKey;
+    }).some(function (v) {
+      return v.getType() === &#x27;atomic&#x27;;
+    });
+
+    if (hasAtomicBlock) {
+      return editorState;
+    }
+
+    var typeToSet = content.getBlockForKey(startKey).getType() === blockType ? &#x27;unstyled&#x27; : blockType;
+
+    return EditorState.push(editorState, DraftModifier.setBlockType(content, target, typeToSet), &#x27;change-block-type&#x27;);
+  },
+
+  toggleCode: function toggleCode(editorState) {
+    var selection = editorState.getSelection();
+    var anchorKey = selection.getAnchorKey();
+    var focusKey = selection.getFocusKey();
+
+    if (selection.isCollapsed() || anchorKey !== focusKey) {
+      return RichTextEditorUtil.toggleBlockType(editorState, &#x27;code-block&#x27;);
+    }
+
+    return RichTextEditorUtil.toggleInlineStyle(editorState, &#x27;CODE&#x27;);
+  },
+
+  /**
+   * Toggle the specified inline style for the selection. If the
+   * user&#x27;s selection is collapsed, apply or remove the style for the
+   * internal state. If it is not collapsed, apply the change directly
+   * to the document state.
+   */
+  toggleInlineStyle: function toggleInlineStyle(editorState, inlineStyle) {
+    var selection = editorState.getSelection();
+    var currentStyle = editorState.getCurrentInlineStyle();
+
+    // If the selection is collapsed, toggle the specified style on or off and
+    // set the result as the new inline style override. This will then be
+    // used as the inline style for the next character to be inserted.
+    if (selection.isCollapsed()) {
+      return EditorState.setInlineStyleOverride(editorState, currentStyle.has(inlineStyle) ? currentStyle.remove(inlineStyle) : currentStyle.add(inlineStyle));
+    }
+
+    // If characters are selected, immediately apply or remove the
+    // inline style on the document state itself.
+    var content = editorState.getCurrentContent();
+    var newContent;
+
+    // If the style is already present for the selection range, remove it.
+    // Otherwise, apply it.
+    if (currentStyle.has(inlineStyle)) {
+      newContent = DraftModifier.removeInlineStyle(content, selection, inlineStyle);
+    } else {
+      newContent = DraftModifier.applyInlineStyle(content, selection, inlineStyle);
+    }
+
+    return EditorState.push(editorState, newContent, &#x27;change-inline-style&#x27;);
+  },
+
+  toggleLink: function toggleLink(editorState, targetSelection, entityKey) {
+    var withoutLink = DraftModifier.applyEntity(editorState.getCurrentContent(), targetSelection, entityKey);
+
+    return EditorState.push(editorState, withoutLink, &#x27;apply-entity&#x27;);
+  },
+
+  /**
+   * When a collapsed cursor is at the start of an empty styled block, allow
+   * certain key commands (newline, backspace) to simply change the
+   * style of the block instead of the default behavior.
+   */
+  tryToRemoveBlockStyle: function tryToRemoveBlockStyle(editorState) {
+    var selection = editorState.getSelection();
+    var offset = selection.getAnchorOffset();
+    if (selection.isCollapsed() &amp;&amp; offset === 0) {
+      var key = selection.getAnchorKey();
+      var content = editorState.getCurrentContent();
+      var block = content.getBlockForKey(key);
+      if (block.getLength() &gt; 0) {
+        return null;
+      }
+
+      var type = block.getType();
+      var blockBefore = content.getBlockBefore(key);
+      if (type === &#x27;code-block&#x27; &amp;&amp; blockBefore &amp;&amp; blockBefore.getType() === &#x27;code-block&#x27;) {
+        return null;
+      }
+
+      if (type !== &#x27;unstyled&#x27;) {
+        return DraftModifier.setBlockType(content, selection, &#x27;unstyled&#x27;);
+      }
+    }
+    return null;
+  }
+};
+
+module.exports = RichTextEditorUtil;
+    </pre>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

@@ -13,7 +13,7 @@ const handleStateChange = editorState => {
 };
 
 let props = {
-    editable: false,
+    editable: true,
     initialHtml: 'Hello World!',
     minHeight: '200px',
     onChange: function(cb) {
