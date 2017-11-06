@@ -1,4 +1,3 @@
-
 $height-toolbar: 2.6em;
 
 .itsa-editor {
@@ -63,7 +62,6 @@ $height-toolbar: 2.6em;
     box-sizing: border-box;
 }
 
-
 .DraftEditor-root {
     height: 100%;
     width: 100%;
@@ -80,6 +78,7 @@ $height-toolbar: 2.6em;
 .DraftEditor-editorContainer,
 .DraftEditor-root,
 .public-DraftEditor-content {
+
     /* height: inherit; */
     text-align: initial;
 }
@@ -89,8 +88,8 @@ $height-toolbar: 2.6em;
 }
 
 .DraftEditor-editorContainer {
-    background-color: rgba(255,255,255,0);
-    border-left: .1px solid transparent;
+    background-color: rgba(255, 255, 255, 0);
+    border-left: 0.1px solid transparent;
     position: relative;
     z-index: 1;
 }
@@ -109,7 +108,7 @@ $height-toolbar: 2.6em;
 }
 
 .DraftEditor-alignCenter .public-DraftStyleDefault-block {
-    text-align:center;
+    text-align: center;
 }
 
 .DraftEditor-alignCenter .public-DraftEditorPlaceholder-root {
@@ -157,7 +156,7 @@ $height-toolbar: 2.6em;
 }
 
 .public-DraftStyleDefault-listLTR {
-    direction: ltr
+    direction: ltr;
 }
 
 .public-DraftStyleDefault-listRTL {
@@ -228,41 +227,41 @@ $height-toolbar: 2.6em;
     position: relative;
 }
 
-.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listLTR:before {
+.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listLTR::before {
     left: -36px;
     position: absolute;
     text-align: right;
     width: 30px;
 }
 
-.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listRTL:before {
+.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listRTL::before {
     position: absolute;
     right: -36px;
     text-align: left;
     width: 30px;
 }
 
-.public-DraftStyleDefault-orderedListItem:before {
+.public-DraftStyleDefault-orderedListItem::before {
     content: counter(ol0) ". ";
     counter-increment: ol0;
 }
 
-.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth1:before {
+.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth1::before {
     content: counter(ol1) ". ";
     counter-increment: ol1;
 }
 
-.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth2:before {
+.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth2::before {
     content: counter(ol2) ". ";
     counter-increment: ol2;
 }
 
-.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth3:before {
+.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth3::before {
     content: counter(ol3) ". ";
     counter-increment: ol3;
 }
 
-.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth4:before {
+.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth4::before {
     content: counter(ol4) ". ";
     counter-increment: ol4;
 }

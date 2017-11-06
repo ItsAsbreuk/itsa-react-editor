@@ -13,6 +13,7 @@ const handleStateChange = editorState => {
 };
 
 let props = {
+    autoFocus: true,
     editable: true,
     initialHtml: 'Hello World!',
     minHeight: '200px',

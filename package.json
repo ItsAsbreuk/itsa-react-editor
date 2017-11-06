@@ -1,6 +1,6 @@
 {
   "name": "itsa-react-editor",
-  "version": "16.0.0",
+  "version": "16.0.4",
   "description": "React editor, based upon Facebook's Draft.js",
   "author": [
     {
@@ -33,8 +33,7 @@
     "lib": "./lib"
   },
   "peerDependencies": {
-    "react": ">=15",
-    "react-dom": ">=15"
+    "react": ">=15"
   },
   "dependencies": {
     "babel-plugin-transform-class-properties": "^6.10.2",
@@ -42,7 +41,7 @@
     "fbjs": "^0.8.3",
     "immutable": "^3.8.1",
     "itsa-jsext": "^1.4.0",
-    "itsa-react-form": "^16.0.0",
+    "itsa-react-form": "^16.0.4",
     "itsa-utils": "^1.4.0",
     "prop-types": "^15.5.10",
     "synthetic-dom": "^0.2.1"
@@ -61,7 +60,7 @@
     "eslint": "^4.0.0",
     "eslint-plugin-react": "^7.1.0",
     "istanbul": "^0.3.0",
-    "itsa-react-button": "^16.0.0",
+    "itsa-react-button": "^16.0.6",
     "jsdom": "^7.2.2",
     "jsdom-global": "^1.6.1",
     "jshint": "^2.5.5",

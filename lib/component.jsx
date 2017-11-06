@@ -23,6 +23,7 @@ const utils = require("itsa-utils"),
     React = require("react"),
     PropTypes = require("prop-types"),
     async = utils.async,
+    later = utils.later,
     Form = require("itsa-react-form"),
     MAIN_CLASS = "itsa-editor",
     MAIN_CLASS_PREFIX = MAIN_CLASS+"-",
@@ -68,6 +69,29 @@ class Component extends React.Component {
     }
 
     /**
+     * componentDidMount will call `this.activatePlaces()`;
+     *
+     * @method componentDidMount
+     * @since 0.0.1
+     */
+    componentDidMount() {
+        const instance = this;
+        if (instance.props.autoFocus) {
+            instance._focusLater = later(() => instance.focus(), 50);
+        }
+    }
+
+    /**
+     * componentWilUnmount does some cleanup.
+     *
+     * @method componentWillUnmount
+     * @since 0.0.1
+     */
+    componentWillUnmount() {
+        this._focusLater && this._focusLater.cancel();
+    }
+
+    /**
      * Empties the editor's content
      *
      * @method empty
@@ -86,7 +110,7 @@ class Component extends React.Component {
      * @since 15.0.0
      */
     focus() {
-        const editor = this.refs.editor;
+        const editor = this._editor;
         editor && editor.focus();
     }
 
@@ -158,7 +182,7 @@ class Component extends React.Component {
                 handleKeyCommand={instance._handleKeyCommand}
                 minHeight={minHeight}
                 onChange={instance._handleEditorChange}
-                ref="editor" />;
+                ref={node => instance._editor = node} />
         }
         if (toolbarItems) {
             toolbarItems.forEach(item => {
@@ -274,6 +298,15 @@ class Component extends React.Component {
 }
 
 Component.propTypes = {
+    /**
+     * Whether to autofocus the Component.
+     *
+     * @property autoFocus
+     * @type Boolean
+     * @since 0.0.1
+    */
+    autoFocus: PropTypes.bool,
+
     /**
      * Decorator for the editor
      *
